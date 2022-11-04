@@ -13,5 +13,7 @@ module.exports = {
   rules: {
     semi: ['error', 'never'],
     'import/no-extraneous-dependencies': ['off'],
+    'implicit-arrow-linebreak': ['off'],
+    'comma-dangle': ['off'],
   },
 }
