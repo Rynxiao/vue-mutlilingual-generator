@@ -1,0 +1,20 @@
+{
+  "name": "vite-multiple-pages",
+  "version": "1.0.0",
+  "description": "vite for multiple pages",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {
+    "prettier": "2.7.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "vite",
+    "multiple",
+    "pages"
+  ],
+  "author": "ryn",
+  "license": "MIT"
+}
