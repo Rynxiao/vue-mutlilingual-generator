@@ -7,7 +7,6 @@ const config = require('./.vmprc')
 const root = path.resolve(__dirname)
 const srcDir = path.resolve(root, 'src')
 const distDir = path.resolve(root, 'dist')
-const languages = ['en', 'pt', 'es']
 const outputPublicPath = config.useOnePage ? '../' : '../../'
 
 const getModules = (modulePath) => {
@@ -45,7 +44,7 @@ const assembleHtmlPlugins = (pages) => {
     })
   } else {
     pages.forEach((page) => {
-      languages.forEach((lang) => {
+      config.languages.forEach((lang) => {
         multipleHtmlPlugins.push(
           new HtmlWebpackPlugin({
             title: `${page}-${lang}`,

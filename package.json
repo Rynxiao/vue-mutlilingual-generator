@@ -1,7 +1,7 @@
 {
-  "name": "vite-multiple-pages",
+  "name": "vue-multilingual-generator",
   "version": "1.0.0",
-  "description": "vite for multiple pages",
+  "description": "vue multilingual generator template",
   "private": "true",
   "scripts": {
     "build": "webpack"
@@ -29,9 +29,9 @@
     "webpack-cli": "^4.10.0"
   },
   "keywords": [
-    "vite",
-    "multiple",
-    "pages"
+    "vue",
+    "multilingual",
+    "generator"
   ],
   "author": "ryn",
   "license": "MIT"
