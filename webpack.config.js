@@ -83,6 +83,7 @@ module.exports = {
   output: {
     path: distDir,
     publicPath: outputPublicPath,
+    assetModuleFilename: (data) => data.filename.replace('src/', ''),
   },
   module: {
     rules: [
@@ -108,15 +109,7 @@ module.exports = {
       },
       {
         test: /\.(png|jpe?g|gif|svg)$/i,
-        use: [
-          {
-            loader: 'file-loader',
-            options: {
-              name: '[name].[ext]',
-              outputPath: 'images',
-            },
-          },
-        ],
+        type: 'asset/resource',
       },
     ],
   },
