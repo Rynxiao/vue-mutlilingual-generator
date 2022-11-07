@@ -1,11 +1,14 @@
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const { VueLoaderPlugin } = require('vue-loader')
 const fs = require('fs')
+const config = require('./.vmprc')
 
 const root = path.resolve(__dirname)
 const srcDir = path.resolve(root, 'src')
 const distDir = path.resolve(root, 'dist')
 const languages = ['en', 'pt', 'es']
+const outputPublicPath = config.useOnePage ? '../' : '../../'
 
 const getModules = (modulePath) => {
   if (fs.existsSync(modulePath)) {
@@ -22,32 +25,53 @@ const getModules = (modulePath) => {
 
 const modules = getModules(srcDir)
 const existedModules = getModules(distDir)
-const modulesNeedBuild = modules.filter((module) => existedModules.indexOf(module) === -1)
+const modulesNeedBuild = modules
+  .filter((module) => existedModules.indexOf(module) === -1)
+  .concat(config.forceUpdate)
 
 const assembleHtmlPlugins = (pages) => {
   const multipleHtmlPlugins = []
-  pages.forEach((name) => {
-    languages.forEach((lang) => {
+
+  if (config.useOnePage) {
+    pages.forEach((page) => {
       multipleHtmlPlugins.push(
         new HtmlWebpackPlugin({
-          title: `${name}-${lang}`,
+          title: `${page}`,
           template: 'index.html',
-          filename: `./${name}/${lang}/${name}.html`,
-          chunks: [name],
+          filename: `./${page}/${page}.html`,
+          chunks: [page],
         })
       )
     })
-  })
+  } else {
+    pages.forEach((page) => {
+      languages.forEach((lang) => {
+        multipleHtmlPlugins.push(
+          new HtmlWebpackPlugin({
+            title: `${page}-${lang}`,
+            template: 'index.html',
+            filename: `./${page}/${lang}/${page}.html`,
+            chunks: [page],
+            templateParameters: {
+              useOnePage: config.useOnePage,
+              lang,
+            },
+          })
+        )
+      })
+    })
+  }
+
   return multipleHtmlPlugins
 }
 
 const buildEntries = (pages) =>
-  pages.reduce((prev, cur) => {
+  pages.reduce((prev, page) => {
     const entry = {
-      import: `./src/${cur}/index.js`,
-      filename: `${cur}/${cur}.[contenthash:8].js`,
+      import: `./src/${page}/index.js`,
+      filename: `${page}/[name].[contenthash:8].js`,
     }
-    return { ...prev, [cur]: entry }
+    return { ...prev, [page]: entry }
   }, {})
 
 const multipleHtmlPlugins = assembleHtmlPlugins(modulesNeedBuild)
@@ -59,9 +83,46 @@ module.exports = {
   entry: entries,
   output: {
     path: distDir,
-    publicPath: '../',
-    clean: true,
+    publicPath: outputPublicPath,
   },
-  module: {},
-  plugins: [...multipleHtmlPlugins],
+  module: {
+    rules: [
+      {
+        test: /\.vue$/,
+        loader: 'vue-loader',
+      },
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        loader: 'babel-loader',
+        options: {
+          presets: [['@babel/preset-env', { targets: 'defaults' }]],
+        },
+      },
+      {
+        test: /\.css$/,
+        use: ['vue-style-loader', 'css-loader'],
+      },
+      {
+        test: /\.scss$/,
+        use: ['vue-style-loader', 'css-loader', 'sass-loader'],
+      },
+      {
+        test: /\.(png|jpe?g|gif|svg)$/i,
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              name: '[name].[ext]',
+              outputPath: 'images',
+            },
+          },
+        ],
+      },
+    ],
+  },
+  resolve: {
+    extensions: ['.js', '.json', '.vue'],
+  },
+  plugins: [...multipleHtmlPlugins, new VueLoaderPlugin()],
 }
